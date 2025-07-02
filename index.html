@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dengue Bleeder Calculator/Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="radio"] {
+            margin-right: 6px;
+        }
+
+        .correction-factor {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .correction-factor label {
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .range-value {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .prediction {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .prediction.bleeding {
+            background: #fee;
+            color: #c33;
+            border: 2px solid #fcc;
+        }
+
+        .prediction.no-bleeding {
+            background: #efe;
+            color: #3c3;
+            border: 2px solid #cfc;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #0066cc;
+        }
+
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dengue Bleeder Calculator</h1>
+        <p class="subtitle">Predicts occult bleeding in dengue patients based on haematocrit changes</p>
+        
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="male" name="gender" value="male" checked>
+                    <label for="male">Male</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="female" name="gender" value="female">
+                    <label for="female">Female</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" step="0.1" min="1" placeholder="Enter patient weight" required>
+        </div>
+
+        <div class="form-group">
+            <label for="hct0">Baseline Haematocrit (Hct₀) %</label>
+            <input type="number" id="hct0" step="0.1" min="0" max="100" placeholder="Enter baseline Hct" required>
+        </div>
+
+        <div class="form-group">
+            <label for="hctObserved">Observed Haematocrit (Hct_observed) %</label>
+            <input type="number" id="hctObserved" step="0.1" min="0" max="100" placeholder="Enter observed Hct" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fluidInput">Fluid Input (ml)</label>
+            <input type="number" id="fluidInput" step="1" min="0" placeholder="Total fluid input" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fluidOutput">Fluid Output (ml)</label>
+            <input type="number" id="fluidOutput" step="1" min="0" placeholder="Total fluid output" required>
+        </div>
+
+        <div class="correction-factor">
+            <label for="correctionFactor">Correction Factor (x) for insensible losses</label>
+            <input type="range" id="correctionFactor" min="0" max="0.5" step="0.1" value="0.2">
+            <div class="range-value" id="correctionValue">0.2</div>
+        </div>
+
+        <button onclick="calculatePrediction()">Calculate Prediction</button>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <div class="result-label">Total Blood Volume (TBV₀)</div>
+                <div class="result-value" id="tbv0">-</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Fluid Balance</div>
+                <div class="result-value" id="balance">-</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Total Blood Volume after fluid shift (TBV₁)</div>
+                <div class="result-value" id="tbv1">-</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Estimated Haematocrit (Hct₁)</div>
+                <div class="result-value" id="hct1">-</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Lower Limit (bleeding threshold)</div>
+                <div class="result-value" id="lowerLimit">-</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">Upper Limit (reference)</div>
+                <div class="result-value" id="upperLimit">-</div>
+            </div>
+            
+            <div class="prediction" id="prediction">
+                <!-- Prediction result will be inserted here -->
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>How it works:</strong><br>
+            This calculator uses the mathematical model for dengue bleeder prediction. It compares the observed haematocrit with the estimated haematocrit based on fluid balance. 
+            <br><br>
+            <strong>Interpretation:</strong><br>
+            • If observed Hct < lower limit → Occult bleeding likely<br>
+            • If observed Hct ≥ lower limit → Bleeding unlikely (hemoconcentration from plasma leakage is expected)
+            <div class="formula">
+                Hct₁ = (Hct₀ × Weight × F) / (Weight × F + Balance)<br>
+                Lower Limit = Hct₁ - (Hct₀ - Hct₁) × x<br>
+                Upper Limit = Hct₁ + (Hct₀ - Hct₁) × x
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update correction factor display
+        document.getElementById('correctionFactor').addEventListener('input', function(e) {
+            document.getElementById('correctionValue').textContent = e.target.value;
+        });
+
+        function calculatePrediction() {
+            // Get input values
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const hct0 = parseFloat(document.getElementById('hct0').value);
+            const hctObserved = parseFloat(document.getElementById('hctObserved').value);
+            const fluidInput = parseFloat(document.getElementById('fluidInput').value);
+            const fluidOutput = parseFloat(document.getElementById('fluidOutput').value);
+            const correctionFactor = parseFloat(document.getElementById('correctionFactor').value);
+            
+            // Validate inputs
+            if (isNaN(weight) || isNaN(hct0) || isNaN(hctObserved) || isNaN(fluidInput) || isNaN(fluidOutput)) {
+                alert('Please fill in all fields with valid numbers');
+                return;
+            }
+            
+            // Correction factor F based on gender
+            const F = gender === 'male' ? 75 : 65; // ml/kg
+            
+            // Calculate TBV0
+            const TBV0 = weight * F;
+            
+            // Calculate fluid balance
+            const balance = fluidInput - fluidOutput;
+            
+            // Calculate TBV1
+            const TBV1 = TBV0 + balance;
+            
+            // Calculate estimated Hct1
+            const hct1 = (hct0 * TBV0) / TBV1;
+            
+            // Calculate prediction limits
+            const delta = Math.abs(hct0 - hct1) * correctionFactor;
+            const lowerLimit = hct1 - delta;
+            const upperLimit = hct1 + delta;
+            
+            // Determine if bleeding is likely
+            // Bleeding is suspected only when observed Hct is LOWER than the lower limit
+            const isBleedingLikely = hctObserved < lowerLimit;
+            
+            // Display results
+            document.getElementById('tbv0').textContent = TBV0.toFixed(0) + ' ml';
+            document.getElementById('balance').textContent = balance.toFixed(0) + ' ml';
+            document.getElementById('tbv1').textContent = TBV1.toFixed(0) + ' ml';
+            document.getElementById('hct1').textContent = hct1.toFixed(1) + '%';
+            document.getElementById('lowerLimit').textContent = lowerLimit.toFixed(1) + '%';
+            document.getElementById('upperLimit').textContent = upperLimit.toFixed(1) + '%';
+            
+            const predictionDiv = document.getElementById('prediction');
+            if (isBleedingLikely) {
+                predictionDiv.className = 'prediction bleeding';
+                predictionDiv.innerHTML = '⚠️ OCCULT BLEEDING LIKELY<br><small>Observed Hct (' + hctObserved.toFixed(1) + '%) is below lower limit (' + lowerLimit.toFixed(1) + '%)</small>';
+            } else {
+                predictionDiv.className = 'prediction no-bleeding';
+                predictionDiv.innerHTML = '✓ BLEEDING UNLIKELY<br><small>Observed Hct (' + hctObserved.toFixed(1) + '%) is ≥ ' + lowerLimit.toFixed(1) + '% (lower limit)</small>';
+            }
+            
+            document.getElementById('results').classList.add('show');
+        }
+    </script>
+</body>
+</html>
