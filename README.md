@@ -75,14 +75,6 @@ Where `x` is an adjustable correction factor for insensible losses (0-0.5).
 - Correction factor may need adjustment based on clinical conditions
 - Best used during the critical phase of dengue
 
-
-## Deployment
-
-The calculator is deployed via GitHub Pages and accessible at:
-- Primary URL: https://SAIFULSAFUAN.COM/dengue-calculator/
-- GitHub Pages URL: https://[username].github.io/[repository]/dengue-calculator/
-
-
 ## Mathematical Basis
 
 This calculator is based on the mathematical model described in:
@@ -107,6 +99,8 @@ This calculator is intended for use by qualified healthcare professionals as a c
 ---
 
 # Calculator 2: Dengue Death Probability Calculator
+
+🔗 **Live Calculator**: [https://SAIFULSAFUAN.COM/denguedeathpredictor/](https://SAIFULSAFUAN.COM/denguedeathpredictor/)
 
 ## Overview
 
