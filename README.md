@@ -106,7 +106,7 @@ This calculator is intended for use by qualified healthcare professionals as a c
 
 ---
 
-# Dengue Death Probability Calculator
+# Calculator 2: Dengue Death Probability Calculator
 
 ## Overview
 
